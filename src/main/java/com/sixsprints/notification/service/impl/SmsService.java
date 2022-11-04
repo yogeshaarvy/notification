@@ -6,9 +6,8 @@ import java.util.concurrent.Future;
 import com.sixsprints.json.util.ApiFactory;
 import com.sixsprints.notification.dto.MessageAuthDto;
 import com.sixsprints.notification.dto.MessageDto;
-import com.sixsprints.notification.enums.sms.SmsServiceOptions;
 import com.sixsprints.notification.service.NotificationService;
-import com.sixsprints.notification.service.SmsApiService;
+import com.sixsprints.notification.service.SmsInstaService;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -17,23 +16,16 @@ public class SmsService implements NotificationService {
 
   private MessageAuthDto smsAuth;
 
-  private SmsApiService smsApiService;
+  private SmsInstaService smsInstaService;
 
   public SmsService() {
     this(null);
   }
 
   public SmsService(MessageAuthDto smsAuth) {
-    this(smsAuth, SmsServiceOptions.INSTA_SMS);
-  }
-
-  public SmsService(MessageAuthDto smsAuth, SmsServiceOptions smsService) {
     super();
     this.smsAuth = smsAuth;
-    if (smsService == null) {
-      smsService = SmsServiceOptions.INSTA_SMS;
-    }
-    smsApiService = (SmsApiService) ApiFactory.create(smsService.getSmsApiService(), smsService.getBaseUrl());
+    smsInstaService = ApiFactory.create(SmsInstaService.class, SmsInstaService.BASE_URL);
   }
 
   @Override
@@ -52,10 +44,8 @@ public class SmsService implements NotificationService {
       throw new IllegalArgumentException("SMS Auth cannot be null. Please create one before sending the SMS.");
     }
     try {
-
-      Call<String> call = smsApiService.sendSms(messageAuthDto.getPassword(), messageAuthDto.getFrom(),
-        cleanNumber(messageDto.getTo()), messageDto.getContent(), messageDto.getTemplateId(), 3);
-
+      Call<String> call = smsInstaService.sendSms(messageAuthDto.getUsername(), messageAuthDto.getPassword(),
+        cleanNumber(messageDto.getTo()), messageAuthDto.getFrom(), messageDto.getContent(), 0, 2);
       Response<String> response = call.execute();
       if (!response.isSuccessful()) {
         throw new IllegalArgumentException("Some problem happened in sending SMS. Please check your params");

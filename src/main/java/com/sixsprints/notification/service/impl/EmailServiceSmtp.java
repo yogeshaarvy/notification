@@ -1,15 +1,10 @@
 package com.sixsprints.notification.service.impl;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.mail.DefaultAuthenticator;
-import org.apache.commons.mail.EmailAttachment;
-import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
-import org.apache.commons.mail.MultiPartEmail;
 
 import com.sixsprints.notification.dto.MessageAuthDto;
 import com.sixsprints.notification.dto.MessageDto;
@@ -42,33 +37,18 @@ public class EmailServiceSmtp implements NotificationService {
       throw new IllegalArgumentException("Email Auth cannot be null. Please create one before sending the mail.");
     }
     try {
-      // Create the email message
       String from = emailAuthDto.getFromEmail();
       HtmlEmail email = emailClient(emailAuthDto);
       email.setFrom(!isEmpty(from) ? from : emailAuthDto.getUsername(),
         emailAuthDto.getFrom());
       email.addTo(emailDto.getTo());
       email.setSubject(emailDto.getSubject());
-      email.setMsg(emailDto.getContent());
       email.setHtmlMsg(emailDto.getContent());
-      attach(emailDto, email);
+      email.setTextMsg(emailDto.getContent());
       return email.send();
     } catch (Exception e) {
       throw new IllegalArgumentException(e.getMessage());
     }
-  }
-
-  private void attach(MessageDto emailDto, MultiPartEmail email) throws MalformedURLException, EmailException {
-    if (emailDto.getAttachment() == null || emailDto.getAttachment().getAttachmentUrl() == null
-      || emailDto.getAttachment().getAttachmentUrl().isEmpty()) {
-      return;
-    }
-    EmailAttachment attachment = new EmailAttachment();
-    attachment.setURL(new URL(emailDto.getAttachment().getAttachmentUrl()));
-    attachment.setDisposition(EmailAttachment.ATTACHMENT);
-    attachment.setName(emailDto.getAttachment().getName());
-    attachment.setDescription(emailDto.getAttachment().getDescription());
-    email.attach(attachment);
   }
 
   private HtmlEmail emailClient(MessageAuthDto emailAuthDto) {
@@ -77,7 +57,6 @@ public class EmailServiceSmtp implements NotificationService {
     email.setAuthenticator(new DefaultAuthenticator(emailAuthDto.getUsername(), emailAuthDto.getPassword()));
     email.setSSLOnConnect(emailAuthDto.isSslEnabled());
     email.setSslSmtpPort(emailAuthDto.getSslSmtpPort());
-    email.setCharset("UTF-8");
     return email;
   }
 

@@ -4,14 +4,13 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
-public interface SmsInstaService extends SmsApiService {
+public interface SmsInstaService {
 
-  String BASE_URL = "http://sms.smsinsta.in/vb/";
+  String BASE_URL = "http://app.smsinsta.in/vendorsms/";
 
-  @Override
-  @GET("apikey.php")
-  Call<String> sendSms(@Query("apikey") String apiKey, @Query("senderid") String senderId,
-    @Query("number") String to, @Query("message") String message, @Query("templateid") String templateId,
-    @Query("route") int route);
+  @GET("pushsms.aspx")
+  Call<String> sendSms(@Query("clientid") String clientId, @Query("apikey") String apiKey,
+    @Query("msisdn") String to, @Query("sid") String senderId,
+    @Query("msg") String message, @Query("fl") int flag, @Query("gwid") int gwId);
 
 }

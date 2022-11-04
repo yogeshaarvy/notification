@@ -13,8 +13,4 @@ public class MessageDto {
 
   private String content;
 
-  private AttachmentDto attachment;
-
-  private String templateId;
-
 }
